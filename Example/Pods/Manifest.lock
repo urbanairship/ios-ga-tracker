@@ -1,0 +1,20 @@
+PODS:
+  - GoogleAnalytics (3.14.0)
+  - UrbanAirship-iOS-GA-Tracker (1.0.0):
+    - GoogleAnalytics
+    - UrbanAirship-iOS-SDK
+  - UrbanAirship-iOS-SDK (7.0.2)
+
+DEPENDENCIES:
+  - UrbanAirship-iOS-GA-Tracker (from `..`)
+
+EXTERNAL SOURCES:
+  UrbanAirship-iOS-GA-Tracker:
+    :path: ".."
+
+SPEC CHECKSUMS:
+  GoogleAnalytics: 9be1afdb8deeac4bb5f13ca7f7d3b9db2a1f43dc
+  UrbanAirship-iOS-GA-Tracker: 9aae31a1318ffe284787d12e1b6be5a1da6d024c
+  UrbanAirship-iOS-SDK: 16c7b57ce1f11f42bd27c503db9a6dbc7e80cf5f
+
+COCOAPODS: 0.39.0
