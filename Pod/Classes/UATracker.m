@@ -30,41 +30,48 @@
 #import "UAAnalytics.h"
 #import "UACustomEvent.h"
 #import "GAIFields.h"
+#import "UATracker+Internal.h"
 
 @implementation UATracker
 
-NSObject<GAITracker> *tracker;
-
-- (instancetype)init
+- (instancetype)initWithGATracker:(NSObject<GAITracker> *)tracker
 {
     self = [super init];
     if (self) {
+
+        self.GATracker = tracker;
+
         // Both trackers are enabled by default
-        self.GAEnabled = YES;
-        self.UATrackerEnabled = YES;
+        self.googleAnalyticsEnabled = YES;
+        self.urbanAirshipEnabled = YES;
 
         self.allowIDFACollection = NO;
     }
     return self;
 }
 
++ (UATracker *) trackerWithGATracker:(NSObject<GAITracker> *)tracker {
+    return [[self alloc] initWithGATracker:tracker];
+}
+
 - (void)set:(NSString *)parameterName
       value:(NSString *)value {
+    [self.GATracker set:parameterName value:value];
 }
 
 - (NSString *)get:(NSString *)parameterName {
-    return self.name;
+    return [self.GATracker get:parameterName];
 }
 
 - (void)send:(NSDictionary *)parameters{
-    if (self.GAEnabled) {
-        [tracker send:parameters];
+    if (self.googleAnalyticsEnabled) {
+        [self.GATracker send:parameters];
     }
 
-    if (self.UATrackerEnabled) {
+    if (self.urbanAirshipEnabled) {
         UACustomEvent *event;
-        if (self.creationBlock) {
-            event = self.creationBlock(parameters, tracker);
+        if (self.eventCreationBlock) {
+            event = self.eventCreationBlock(parameters, self.GATracker);
         } else {
             event = [self generateCustomEventWithParameters:parameters];
         }
@@ -73,30 +80,49 @@ NSObject<GAITracker> *tracker;
             return;
         }
 
-        if (self.customizationBlock) {
-            self.customizationBlock(parameters, tracker);
+        if (self.eventCustomizationBlock) {
+            self.eventCustomizationBlock(event, parameters);
         }
 
         [[[UAirship shared] analytics] addEvent:event];
     }
 }
 
-- (UACustomEvent *) generateCustomEventWithParameters: (NSDictionary *) parameters {
+- (UACustomEvent *)generateCustomEventWithParameters:(NSDictionary *)parameters {
 
     __block NSString *eventName = [parameters valueForKey:kGAIHitType];
     __block UACustomEvent *customEvent = [UACustomEvent eventWithName:eventName];
 
     __block void (^addProperty)(NSString *, NSString *) = ^void(NSString *GAIParameter, NSString *propertyName) {
         // Look on the tracker for the parameter first
-        if ([tracker get:GAIParameter]) {
-            [customEvent setStringProperty:[tracker get:GAIParameter] forKey:propertyName];
+        if ([self.GATracker get:GAIParameter]) {
+
+            NSString *parameter;
+
+            if (![self.GATracker get:GAIParameter]) {
+                parameter = [self.GATracker get:GAIParameter];
+                return;
+            }
+
+            if (![parameter isEqualToString:@"<null>"] || ![parameter isEqualToString:@"null"]) {
+                [customEvent setStringProperty:[self.GATracker get:GAIParameter] forKey:propertyName];
+            }
         }
         else {
             // Look in the parameters after checking the tracker
-            [customEvent setStringProperty:[parameters valueForKey:GAIParameter] forKey:propertyName];
+
+            NSString *parameter;
+
+            if (![parameters valueForKey:GAIParameter]) {
+                parameter = [parameters valueForKey:GAIParameter];
+                return;
+            }
+
+            if (![parameter isEqualToString:@"<null>"] || ![parameter isEqualToString:@"null"]) {
+                [customEvent setStringProperty:parameters[GAIParameter] forKey:propertyName];
+            }
         }
     };
-
 
     // Add default properties
     addProperty(kGAIVersion, kGAIVersion);
@@ -105,10 +131,8 @@ NSObject<GAITracker> *tracker;
     addProperty(kGAIAppName, kGAIAppName);
 
     // Screen View Event
-    if ([eventName isEqualToString:kGAIEvent]) {
-        addProperty(kGAIScreenView, kGAIScreenView);
-
-        return customEvent;
+    if ([eventName isEqualToString:kGAIScreenView]) {
+        addProperty(kGAIScreenName, kGAIScreenName);
     }
 
     // Standard GA Event
@@ -117,17 +141,13 @@ NSObject<GAITracker> *tracker;
         addProperty(kGAIEventAction, kGAIEventAction);
         addProperty(kGAIEventLabel, kGAIEventLabel);
         addProperty(kGAIEventValue, kGAIEventValue);
-
-        return customEvent;
     }
 
     // Social Event
-    if ([eventName isEqualToString:kGAIEvent]) {
+    if ([eventName isEqualToString:kGAISocial]) {
         addProperty(kGAISocialNetwork, kGAISocialNetwork);
         addProperty(kGAISocialAction, kGAISocialAction);
         addProperty(kGAISocialTarget, kGAISocialTarget);
-
-        return customEvent;
     }
 
     // Transaction Event
@@ -138,36 +158,27 @@ NSObject<GAITracker> *tracker;
         addProperty(kGAITransactionShipping, kGAITransactionShipping);
         addProperty(kGAITransactionTax, kGAITransactionTax);
         addProperty(kGAICurrencyCode, kGAICurrencyCode);
-
-        return customEvent;
     }
     // Item Event
-    if ([eventName isEqualToString:kGAIEvent]) {
+    if ([eventName isEqualToString:kGAIItem]) {
         addProperty(kGAIItemPrice, kGAIItemPrice);
         addProperty(kGAIItemQuantity, kGAIItemQuantity);
         addProperty(kGAIItemSku, kGAIItemSku);
         addProperty(kGAIItemName, kGAIItemName);
         addProperty(kGAIItemCategory, kGAIItemCategory);
-
-        return customEvent;
     }
     // Exception Event
-    if ([eventName isEqualToString:kGAIEvent]) {
+    if ([eventName isEqualToString:kGAIException]) {
         addProperty(kGAIExDescription, kGAIExDescription);
         addProperty(kGAIExFatal, kGAIExFatal);
-
-        return customEvent;
     }
     // Timing Event
-    if ([eventName isEqualToString:kGAIEvent]) {
+    if ([eventName isEqualToString:kGAITiming]) {
         addProperty(kGAITimingCategory, kGAITimingCategory);
         addProperty(kGAITimingVar, kGAITimingVar);
         addProperty(kGAITimingValue, kGAITimingValue);
         addProperty(kGAITimingLabel, kGAITimingLabel);
-
-        return customEvent;
     }
-
     return customEvent;
 }
 

@@ -38,6 +38,16 @@
                ReferencedContainer = "container:UrbanAirship-iOS-GA-Tracker.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "61D702FF1CB86CC400DD6C57"
+               BuildableName = "UrbanAirship-iOS-GA-Tracker_ExampleTestsssdaksdasifhsdlkjfnsd.xctest"
+               BlueprintName = "UrbanAirship-iOS-GA-Tracker_ExampleTestsssdaksdasifhsdlkjfnsd"
+               ReferencedContainer = "container:UrbanAirship-iOS-GA-Tracker.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

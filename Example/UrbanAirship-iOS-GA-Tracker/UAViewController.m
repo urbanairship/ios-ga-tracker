@@ -26,6 +26,8 @@
 #import "UAViewController.h"
 #import "UAirship.h"
 #import "GAI.h"
+#import "UATracker.h"
+#import "GAIDictionaryBuilder.h"
 
 @interface UAViewController ()
 
@@ -36,13 +38,20 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-}
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    // Initialize a Google Analytics tracker
+    NSObject<GAITracker> *GAtracker = [[GAI sharedInstance] trackerWithTrackingId:@"GA_tracker"];
+
+    // Initialize a Urban Airship tracker
+    UATracker *tracker = [UATracker trackerWithGATracker:GAtracker];
+
+    // Enable GA tracker (enabled by default)
+    tracker.googleAnalyticsEnabled = YES;
+
+    // Enable UA tracker (enabled by default)
+    tracker.urbanAirshipEnabled = YES;
+
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 @end

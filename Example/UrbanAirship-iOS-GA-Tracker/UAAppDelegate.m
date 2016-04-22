@@ -25,12 +25,42 @@
 
 #import "UAAppDelegate.h"
 #import "UAirship.h"
+#import "UAConfig.h"
+#import "UAPush.h"
 #import "GAI.h"
 
 @implementation UAAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // Set log level for debugging config loading (optional)
+    // It will be set to the value in the loaded config upon takeOff
+    [UAirship setLogLevel:UALogLevelTrace];
+
+    // Populate AirshipConfig.plist with your app's info from https://go.urbanairship.com
+    // or set runtime properties here.
+    UAConfig *config = [UAConfig defaultConfig];
+
+    // You can then programmatically override the plist values:
+    // config.developmentAppKey = @"YourKey";
+    // etc.
+
+    // Call takeOff (which creates the UAirship singleton)
+    [UAirship takeOff:config];
+
+    // Print out the application configuration for debugging (optional)
+    NSLog(@"Config:\n%@", [config description]);
+
+    // Set the icon badge to zero on startup (optional)
+    [[UAirship push] resetBadge];
+
+    // Set the notification types required for the app (optional). This value defaults
+    // to badge, alert and sound, so it's only necessary to set it if you want
+    // to add or remove types.
+    [UAirship push].userNotificationTypes = (UIUserNotificationTypeAlert |
+                                             UIUserNotificationTypeBadge |
+                                             UIUserNotificationTypeSound);
+
     // Override point for customization after application launch.
     return YES;
 }

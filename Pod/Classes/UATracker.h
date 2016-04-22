@@ -25,64 +25,100 @@
 
 #import <Foundation/Foundation.h>
 #import "GAITracker.h"
+#import "GAIFields.h"
 #import "UACustomEvent.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UATracker : NSObject <GAITracker>
 
-/*!
- Enable Urban Airship tracking for GA events. Default is true.
+/**
+ * Enable Urban Airship tracking for GA events. Default is true.
  */
-@property (nonatomic, assign) BOOL UATrackerEnabled;
+@property (nonatomic, assign) BOOL urbanAirshipEnabled;
 
-/*!
- Enable Google analytics event tracking. Default is true.
+/**
+ * Enable Google analytics event tracking. Default is true.
  */
-@property (nonatomic, assign) BOOL GAEnabled;
+@property (nonatomic, assign) BOOL googleAnalyticsEnabled;
 
-/*!
- Name of this tracker.
+/**
+ * The wrapped Google Analytics tracker.
+ */
+@property (nonatomic, strong) NSObject<GAITracker> *googleAnalyticsTracker;
+
+/**
+ * Name of this tracker.
  */
 @property(nonatomic, readonly) NSString *name;
 
-/*!
- Allow collection of IDFA and related fields if set to true.  Default is false.
+/**
+ * Allow collection of IDFA and related fields if set to true.  Default is false.
  */
 @property(nonatomic) BOOL allowIDFACollection;
 
-@property (nonatomic, copy, nullable) UACustomEvent * (^creationBlock)(NSDictionary *parameters, NSObject<GAITracker> *tracker);
 
-@property (nonatomic, copy, nullable) void (^customizationBlock)(UACustomEvent *customEvent,  NSObject<GAITracker> *tracker);
+/**
+ * The event creation block allows user to completely define the UACustomEvent to be generated. If nil, the
+ * UATracker will generate the UACustomEvent with default parameters.
+ *
+ * @param parameters A map from parameter names to parameter values which will be
+ * set just for this piece of tracking information, or nil for none.
+ *
+ * @param tracker The Google Analytics tracker instance to which the event is associated.
+ */
+@property (nonatomic, copy, nullable) UACustomEvent *(^eventCreationBlock)(NSDictionary *parameters,  NSObject<GAITracker> *tracker);
 
-/*!
- Set a tracking parameter.
+/**
+ * The event customization block allows the user to optionally define parameters to be added to the UACustomEvent
+ * after it is prepopulated with default parameters. If nil, the UATracker will generate the UACustomEvent with
+ * default parameters.
+ *
+ * @param customEvent The custom event to be customized.
+ *
+ * @param parameters A map from parameter names to parameter values which will be
+ * set just for this piece of tracking information, or nil for none.
+ *
+ * @param tracker The Google Analytics tracker instance to which the event is associated.
+ */
+@property (nonatomic, copy, nullable) void (^eventCustomizationBlock)(UACustomEvent *customEvent, NSDictionary *parameters);
 
- @param parameterName The parameter name.
-
- @param value The value to set for the parameter. If this is nil, the
- value for the parameter will be cleared.
+/**
+ * Set a tracking parameter.
+ *
+ * @param parameterName The parameter name.
+ *
+ * @param value The value to set for the parameter. If this is nil, the
+ * value for the parameter will be cleared.
  */
 - (void)set:(NSString *)parameterName
       value:(NSString *)value;
 
-/*!
- Get a tracking parameter.
-
- @param parameterName The parameter name.
-
- @returns The parameter value, or nil if no value for the given parameter is
- set.
+/**
+ * Get a tracking parameter.
+ *
+ * @param parameterName The parameter name.
+ *
+ * @returns The parameter value, or nil if no value for the given parameter is
+ * set.
  */
 - (NSString *)get:(NSString *)parameterName;
 
-/*!
- Queue tracking information with the given parameter values.
-
- @param parameters A map from parameter names to parameter values which will be
- set just for this piece of tracking information, or nil for none.
+/**
+ * Queue tracking information with the given parameter values.
+ *
+ * @param parameters A map from parameter names to parameter values which will be
+ * set just for this piece of tracking information, or nil for none.
  */
 - (void)send:(NSDictionary *)parameters;
+
+/**
+ * Factory method for creating a UATracker
+ *
+ * @param tracker A GATracker instance for forwarding events.
+ */
++ (instancetype)trackerWithGATracker:(NSObject<GAITracker> *)tracker;
 
 NS_ASSUME_NONNULL_END
 

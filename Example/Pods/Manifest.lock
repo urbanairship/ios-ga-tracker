@@ -1,12 +1,14 @@
 PODS:
   - GoogleAnalytics (3.14.0)
+  - OCMock (3.2.2)
   - UrbanAirship-iOS-GA-Tracker (1.0.0):
-    - GoogleAnalytics
-    - UrbanAirship-iOS-SDK
-  - UrbanAirship-iOS-SDK (7.0.2)
+    - GoogleAnalytics (~> 3.0)
+  - UrbanAirship-iOS-SDK (7.0.3.rc1)
 
 DEPENDENCIES:
+  - OCMock
   - UrbanAirship-iOS-GA-Tracker (from `..`)
+  - UrbanAirship-iOS-SDK (~> 7.0.3.rc1)
 
 EXTERNAL SOURCES:
   UrbanAirship-iOS-GA-Tracker:
@@ -14,7 +16,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GoogleAnalytics: 9be1afdb8deeac4bb5f13ca7f7d3b9db2a1f43dc
-  UrbanAirship-iOS-GA-Tracker: 9aae31a1318ffe284787d12e1b6be5a1da6d024c
-  UrbanAirship-iOS-SDK: 16c7b57ce1f11f42bd27c503db9a6dbc7e80cf5f
+  OCMock: 18c9b7e67d4c2770e95bb77a9cc1ae0c91fe3835
+  UrbanAirship-iOS-GA-Tracker: 7230886aacdd1c8cacb2592b55c23a3e19c4603b
+  UrbanAirship-iOS-SDK: 72916025d37b765f0186c332d0d53e612c9340bb
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: a641c2cf386906e34e2321e8dbf69ca971b9d6f5
+
+COCOAPODS: 1.0.0.beta.6

@@ -1,10 +1,10 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'UrbanAirship-iOS-GA-Tracker_Example', :exclusive => true do
-  pod 'UrbanAirship-iOS-GA-Tracker', :path => ".."
+target 'UrbanAirship-iOS-GA-Tracker_Example' do
+  pod 'UrbanAirship-iOS-GA-Tracker',:path => ".."
 end
 
-target 'UrbanAirship-iOS-GA-Tracker_Tests', :exclusive => true do
-  pod 'UrbanAirship-iOS-GA-Tracker', :path => ".."
-  
+target 'UrbanAirship-iOS-GA-Tracker_Tests' do
+  pod 'UrbanAirship-iOS-GA-Tracker',:path => ".."
+  pod 'OCMock'
 end
