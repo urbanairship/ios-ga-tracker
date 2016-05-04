@@ -41,10 +41,10 @@ Creating a screen tracking event:
 ```objc
 
 // Initialize a Google Analytics tracker
-NSObject<GAITracker> *GAtracker = [[GAI sharedInstance] trackerWithTrackingId:@"GA_tracker"];
+NSObject<GAITracker> *googleAnalyticsTracker = [[GAI sharedInstance] trackerWithTrackingId:@"GA_tracker"];
 
 // Initialize a Urban Airship tracker
-UATracker *tracker = [UATracker trackerWithGATracker:GAtracker]; 
+UATracker *tracker = [UATracker trackerWithGATracker:googleAnalyticsTracker]; 
 
 // Enable GA tracker (enabled by default)
 tracker.googleAnalyticsEnabled = YES;

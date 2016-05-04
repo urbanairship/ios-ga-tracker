@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Factory method for creating a UATracker
  *
- * @param tracker A GATracker instance for forwarding events.
+ * @param tracker A googleAnalyticsTracker instance for forwarding events.
  */
 + (instancetype)trackerWithGATracker:(NSObject<GAITracker> *)tracker;
 

@@ -30,14 +30,14 @@
 #import "GAITracker.h"
 #import "GAIDictionaryBuilder.h"
 #import "UAAnalytics.h"
-#import "UATracker+Internal.h"
+#import "UATracker.h"
 
 @import XCTest;
 
 @interface Tests : XCTestCase
 
-@property (nonatomic, strong) id mockAirship;
 @property (nonatomic, strong) UATracker *tracker;
+@property (nonatomic, strong) id mockAirship;
 @property (nonatomic, strong) id mockAnalytics;
 
 @end
@@ -47,9 +47,8 @@
 - (void)setUp {
     [super setUp];
 
-    NSObject<GAITracker> *tracker = [[GAI sharedInstance] trackerWithTrackingId:@"testing_tracker"];
-
-    self.tracker = [UATracker trackerWithGATracker:tracker];
+    id googleTracker = [[GAI sharedInstance] trackerWithTrackingId:@"testing_tracker"];
+    self.tracker = [UATracker trackerWithGATracker:googleTracker];
 
     self.mockAnalytics = [OCMockObject niceMockForClass:[UAAnalytics class]];
 
@@ -60,6 +59,9 @@
 
 - (void)tearDown {
 
+    // Reset tracker after each test
+    [[GAI sharedInstance] removeTrackerByName:@"testing_tracker"];
+
     [self.mockAirship stopMocking];
     [self.mockAnalytics stopMocking];
 
@@ -67,313 +69,24 @@
 }
 
 /**
- Tests Screen View event.
- **/
-- (void)testScreenViewEvent {
-
-    __block NSDictionary *eventData;
-    __block NSDictionary *expectedEventData =  @{@"event_name" : kGAIScreenView,
-                                                 @"properties" : @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                   @"&cd" : @"\"Home Screen\"",
-                                                                   @"&tid" : @"\"testing_tracker\""}};
-
-    [self.tracker set:kGAIScreenName
-                value:@"Home Screen"];
-
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createScreenView] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Standard GA Event.
- **/
-- (void)testStandardGAEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAIEvent,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&ea" : @"\"button_press\"",
-                                                                 @"&ec" : @"\"ui_action\"",
-                                                                 @"&el" : @"\"play\"",
-                                                                 @"&ev" : @"\"1\"",
-                                                                 @"&tid" : @"\"testing_tracker\""}};
-
-    // This screen name value will remain set on the tracker and sent with
-    // hits until it is set to a new value or to nil.
-    [self.tracker set:kGAIScreenName
-                value:@"Home Screen"];
-
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ui_action"
-                                                               action:@"button_press"
-                                                                label:@"play"
-                                                                value:@1] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Social Event.
- **/
-- (void)testSocialEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAISocial,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&sa" : @"\"Tweet\"",
-                                                                 @"&sn" : @"\"Twitter\"",
-                                                                 @"&st" : @"\"https:\\/\\/developers.google.com\\/analytics\"",
-                                                                 @"&tid" : @"\"testing_tracker\""}};
-
-    NSString *targetUrl = @"https://developers.google.com/analytics";
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createSocialWithNetwork:@"Twitter"
-                                                               action:@"Tweet"
-                                                               target:targetUrl] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Transaction Event.
- **/
-- (void)testTransactionEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAITransaction,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&cu" : @"\"USD\"",
-                                                                 @"&ta" : @"\"In-app Store\"",
-                                                                 @"&ti" : @"\"0_123456\"",
-                                                                 @"&tid" :@"\"testing_tracker\"",
-                                                                 @"&tr" : @"\"2.16\"",
-                                                                 @"&ts" : @"\"0\"",
-                                                                 @"&tt" : @"\"0.17\""}};
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createTransactionWithId:@"0_123456"
-                                                          affiliation:@"In-app Store"
-                                                              revenue:@2.16F
-                                                                  tax:@0.17F
-                                                             shipping:@0
-                                                         currencyCode:@"USD"] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Item Event.
- **/
-- (void)testItemEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAIItem,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&ic" : @"\"L_789\"",
-                                                                 @"&in" : @"\"Space Expansion\"",
-                                                                 @"&ip" : @"\"1.9\"",
-                                                                 @"&iq" : @"\"1\"",
-                                                                 @"&iv" : @"\"Game expansions\"",
-                                                                 @"&tid" : @"\"testing_tracker\""}};
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createItemWithTransactionId:@"0_123456"
-                                                                     name:@"Space Expansion"
-                                                                      sku:@"L_789"
-                                                                 category:@"Game expansions"
-                                                                    price:@1.9F
-                                                                 quantity:@1
-                                                             currencyCode:@"USD"] build]];
-
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Exception Event.
- **/
-- (void)testExceptionEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAIException,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&exd" : @"\"Connection timeout\"",
-                                                                 @"&exf" : @"\"0\"",
-                                                                 @"&tid" : @"\"testing_tracker\""}};
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder
-                         createExceptionWithDescription:@"Connection timeout"
-                         withFatal:@NO] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-/**
- Tests Timing Event.
- **/
-- (void)testTimingEvent {
-
-    __block NSDictionary *eventData;
-    // These values are escaped instead of JSON decoded for convenience
-    __block NSDictionary *expectedEventData = @{@"event_name" : kGAITiming,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&tid" : @"\"testing_tracker\"",
-                                                                 @"&utc" : @"\"resources\"",
-                                                                 @"&utl" : @"null",
-                                                                 @"&utt" : @"\"1000\"",
-                                                                 @"&utv" : @"\"high scores\""}};
-
-    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
-        if (![obj isKindOfClass:[UACustomEvent class]]) {
-            return NO;
-        }
-
-        UACustomEvent *event = obj;
-        eventData = event.data;
-
-        [eventData valueForKey:@"&cid"];
-
-        // cid is generated, so don't compare to static expected value
-        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
-        [properties removeObjectForKey:@"&cid"];
-
-        return [eventData isEqualToDictionary:expectedEventData];
-    }]];
-
-    [self.tracker send:[[GAIDictionaryBuilder createTimingWithCategory:@"resources"
-                                                              interval:@((NSUInteger)(1000))
-                                                                  name:@"high scores"
-                                                                 label:nil] build]];
-
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
-}
-
-
-/**
- Tests creating a default event.
+ Tests creating a default event with no tracker properties.
  **/
 - (void)testDefaultEventCreation {
 
     __block NSDictionary *eventData;
     // These values are escaped instead of JSON decoded for convenience
     __block NSDictionary *expectedEventData = @{@"event_name" : kGAIEvent,
-                                                @"properties": @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                 @"&ea" : @"\"button_press\"",
-                                                                 @"&ec" : @"\"ui_action\"",
-                                                                 @"&el" : @"\"play\"",
-                                                                 @"&ev" : @"\"1\"",
-                                                                 @"&tid" : @"\"testing_tracker\""}};
-
-    // This screen name value will remain set on the tracker and sent with
-    // hits until it is set to a new value or to nil.
-    [self.tracker set:kGAIScreenName
-                value:@"Home Screen"];
-
+                                                    @"properties" :     @{
+                                                            @"&aid" : @"\"com.urbanairship.PodSample\"",
+                                                            @"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
+                                                            @"&av" : @"\"1.0\"",
+                                                            @"&ea" : @"\"button_press\"",
+                                                            @"&ec" : @"\"ui_action\"",
+                                                            @"&el" : @"\"play\"",
+                                                            @"&ev" : @"\"1\"",
+                                                            @"&t" : @"\"event\"",
+                                                            @"&tid" : @"\"testing_tracker\"",
+                                                            }};
 
     [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
         if (![obj isKindOfClass:[UACustomEvent class]]) {
@@ -396,8 +109,56 @@
                                                                action:@"button_press"
                                                                 label:@"play"
                                                                 value:@1] build]];
+    [self.mockAnalytics verify];
+}
 
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
+/**
+ Tests creating a default event with a screen tracking property set on the tracker.
+ **/
+- (void)testDefaultEventCreationWithScreen {
+
+    __block NSDictionary *eventData;
+    // These values are escaped instead of JSON decoded for convenience
+    __block NSDictionary *expectedEventData = @{@"event_name" : kGAIEvent,
+                                                    @"properties" :     @{
+                                                            @"&aid" : @"\"com.urbanairship.PodSample\"",
+                                                            @"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
+                                                            @"&av" : @"\"1.0\"",
+                                                            @"&cd" : @"\"Home Screen\"",
+                                                            @"&ea" : @"\"button_press\"",
+                                                            @"&ec" : @"\"ui_action\"",
+                                                            @"&el" : @"\"play\"",
+                                                            @"&ev" : @"\"1\"",
+                                                            @"&t" : @"\"event\"",
+                                                            @"&tid" : @"\"testing_tracker\"",
+                                                            }};
+
+    // Set the screen to ensure tracker properties are properly parsed
+    [self.tracker set:kGAIScreenName
+                value:@"Home Screen"];
+
+    [[self.mockAnalytics expect] addEvent:[OCMArg checkWithBlock:^BOOL(id obj) {
+        if (![obj isKindOfClass:[UACustomEvent class]]) {
+            return NO;
+        }
+
+        UACustomEvent *event = obj;
+        eventData = event.data;
+
+        [eventData valueForKey:@"&cid"];
+
+        // cid is generated, so don't compare to static expected value
+        NSMutableDictionary *properties = [eventData valueForKey:@"properties"];
+        [properties removeObjectForKey:@"&cid"];
+
+        return [eventData isEqualToDictionary:expectedEventData];
+    }]];
+
+    [self.tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ui_action"
+                                                               action:@"button_press"
+                                                                label:@"play"
+                                                                value:@1] build]];
+    [self.mockAnalytics verify];
 }
 
 /**
@@ -407,11 +168,6 @@
 
     __block NSDictionary *expectedEventData =  @{@"event_name" : @"testEventName",
                                                  @"properties" : @{@"testPropertyKey": @"\"testPropertyValue\""}};
-
-    // This screen name value will remain set on the tracker and sent with
-    // hits until it is set to a new value or to nil.
-    [self.tracker set:kGAIScreenName
-                value:@"Home Screen"];
 
     self.tracker.eventCreationBlock = ^UACustomEvent *(NSDictionary *parameters,  NSObject<GAITracker> *tracker) {
 
@@ -434,7 +190,7 @@
 
     [self.tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
+    [self.mockAnalytics verify];
 }
 
 /**
@@ -443,15 +199,16 @@
 - (void)testBlockCustomizedEventCreation {
 
     __block NSDictionary *eventData;
-
-    __block NSDictionary *expectedEventData =  @{@"event_name" : kGAIScreenView,
-                                                 @"properties" : @{@"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
-                                                                   @"&cd" : @"\"Home Screen\"",
-                                                                   @"&tid" : @"\"testing_tracker\"",
-                                                                   @"testPropertyKey" : @"\"testPropertyValue\""}};
-
-    // This screen name value will remain set on the tracker and sent with
-    // hits until it is set to a new value or to nil.
+    __block NSDictionary *expectedEventData = @{@"event_name" : @"screenview",
+                                                     @"properties" :     @{
+                                                             @"&aid" : @"\"com.urbanairship.PodSample\"",
+                                                             @"&an" : @"\"UrbanAirship-iOS-GA-Tracker_Example\"",
+                                                             @"&av" : @"\"1.0\"",
+                                                             @"&cd" : @"\"Home Screen\"",
+                                                             @"&t" : @"\"screenview\"",
+                                                             @"&tid" : @"\"testing_tracker\"",
+                                                             @"testPropertyKey" : @"\"testPropertyValue\"",
+                                                             }};
     [self.tracker set:kGAIScreenName
                 value:@"Home Screen"];
 
@@ -478,7 +235,7 @@
 
     [self.tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 
-    XCTAssertNoThrow([self.mockAnalytics verify], @"Event parameters should match");
+    [self.mockAnalytics verify];
 }
 
 /**
@@ -486,7 +243,7 @@
  **/
 - (void)testSendGADisabled {
 
-    id mockGATracker = [OCMockObject partialMockForObject:self.tracker.GATracker];
+    id mockGATracker = [OCMockObject partialMockForObject:self.tracker.googleAnalyticsTracker];
 
     //Test that no send call is made when GA forwarding is disabled
     self.tracker.googleAnalyticsEnabled = NO;
@@ -496,7 +253,8 @@
                 value:@"Home Screen"];
 
     [[mockGATracker reject] send:OCMOCK_ANY];
-    [[self.mockAnalytics reject] addEvent:OCMOCK_ANY];
+
+    [self.tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 
     [mockGATracker verify];
     [mockGATracker stopMocking];
@@ -505,9 +263,9 @@
 /**
  Tests sending when GA tracker is enabled.
  **/
-- (void)testSendGoogleAnalyticsEnabled {
+- (void)testSendGAEnabled {
 
-    id mockGATracker = [OCMockObject partialMockForObject:self.tracker.GATracker];
+    id mockGATracker = [OCMockObject partialMockForObject:self.tracker.googleAnalyticsTracker];
 
     //Test that no send call is made when GA forwarding is disabled
     self.tracker.googleAnalyticsEnabled = YES;
@@ -561,7 +319,6 @@
 
     [self.mockAnalytics verify];
 }
-
 
 @end
 

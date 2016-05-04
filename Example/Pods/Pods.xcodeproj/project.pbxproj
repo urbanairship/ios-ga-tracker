@@ -85,7 +85,6 @@
 		791FD2ABA19621316F4BF8E50386356E /* UARichContentWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D5CB3CDF38A833451FB5D9F899AB180 /* UARichContentWindow.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7CF9153BDCE0D654A0E18D58C73C9928 /* UAApplicationMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BC68261270F802CE9B9E4E58052D491 /* UAApplicationMetrics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7D26D9FAEE44DD60DA0943B9B0525ABB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB4C90BCE3A78A42DA32518C20DB61F4 /* Foundation.framework */; };
-		7D3BADAF9DC3D3DB0E04F8AF3790EDDF /* UATracker+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 83A36CE5A683DEB00B6B84FB38C317DF /* UATracker+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7EE0FD33AB30006545874DEF02F9243E /* OCMNotificationPoster.m in Sources */ = {isa = PBXBuildFile; fileRef = 22799E8F00C38E57D87ACA56163803B8 /* OCMNotificationPoster.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		7F2BC48B04A284214B3935D7F471D928 /* UASignificantChangeProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = EA8E8D8D1A9C28FA6D9890447EB569CD /* UASignificantChangeProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7FFCEEC0036EC9E7A5D3BAD719B28D4A /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 8D98399EE8115D91C11F8E1F8A08B878 /* NSNotificationCenter+OCMAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -138,7 +137,6 @@
 		B329AB522925BEDCDC7F7BD9A81840D6 /* UAMutableUserNotificationCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = F85E6A59C618FC594775D979516A97E5 /* UAMutableUserNotificationCategory.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B36995CF7E36CC57C8C118EC5EC049A6 /* OCMock-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C48A69DD059F58069610531FBF1F1682 /* OCMock-dummy.m */; };
 		B4D6973B3F74EB04E719BFCFCBF04C0B /* OCMInvocationStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8A29D020C9ECCEE1AFC8C9FE95EB9 /* OCMInvocationStub.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		B8A8381ED8CDC11615DC361B9C07B692 /* UATracker+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 83A36CE5A683DEB00B6B84FB38C317DF /* UATracker+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B9733CBF63AE39B87D37FE07E45E99B7 /* UATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = AE42B6401384D65A17A1E1C3AD3DA4F6 /* UATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BC7143B82E45DDE808B1D8E8F6970E41 /* OCMInvocationExpectation.h in Headers */ = {isa = PBXBuildFile; fileRef = A234DCC83CBBB0DBA28DEBA9D1AA0EB4 /* OCMInvocationExpectation.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		BE28943A507A171B45FC7A93F6FC793F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 905A62B6841BC05FCD1F3F78DD18716D /* CoreGraphics.framework */; };
@@ -329,7 +327,6 @@
 		7F479368582E1493C5D142D70768B85E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.2.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
 		7FA3882AEEAA9831EAA4A65ADC67B0ED /* UAUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UAUtils.h; path = Airship/Common/UAUtils.h; sourceTree = "<group>"; };
 		80B4B9A647124B005EFE4A1F64719A2B /* UAIncomingInAppMessageAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UAIncomingInAppMessageAction.h; path = Airship/Common/UAIncomingInAppMessageAction.h; sourceTree = "<group>"; };
-		83A36CE5A683DEB00B6B84FB38C317DF /* UATracker+Internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "UATracker+Internal.h"; sourceTree = "<group>"; };
 		84199FBF095F25A67B2A1591789BEF73 /* UAPush.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UAPush.h; path = Airship/Push/UAPush.h; sourceTree = "<group>"; };
 		84E07226AE5E8B9169A0D6BC4497839F /* GAITracker.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GAITracker.h; path = Headers/Public/GAITracker.h; sourceTree = "<group>"; };
 		86C752E3902FD7B2A34C60F1FE292881 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.2.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
@@ -722,7 +719,6 @@
 			children = (
 				AE42B6401384D65A17A1E1C3AD3DA4F6 /* UATracker.h */,
 				02A9E98493730BCAEB97BA68B58801E5 /* UATracker.m */,
-				83A36CE5A683DEB00B6B84FB38C317DF /* UATracker+Internal.h */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -909,7 +905,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8A8381ED8CDC11615DC361B9C07B692 /* UATracker+Internal.h in Headers */,
 				B9733CBF63AE39B87D37FE07E45E99B7 /* UATracker.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1057,7 +1052,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D3BADAF9DC3D3DB0E04F8AF3790EDDF /* UATracker+Internal.h in Headers */,
 				9400CDAF4EF167F55189F5AB7CF5A32A /* UATracker.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

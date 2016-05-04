@@ -30,7 +30,13 @@
 #import "UAAnalytics.h"
 #import "UACustomEvent.h"
 #import "GAIFields.h"
-#import "UATracker+Internal.h"
+#import "UATracker.h"
+
+@interface UATracker ()
+
+@property (nonatomic, strong) NSArray *trackerKeys;
+
+@end
 
 @implementation UATracker
 
@@ -39,13 +45,15 @@
     self = [super init];
     if (self) {
 
-        self.GATracker = tracker;
+        self.googleAnalyticsTracker = tracker;
 
         // Both trackers are enabled by default
         self.googleAnalyticsEnabled = YES;
         self.urbanAirshipEnabled = YES;
 
         self.allowIDFACollection = NO;
+
+        self.trackerKeys = @[@"&v", @"&an", @"&tid", @"&uid", @"&dr", @"&cn", @"&cs", @"&cm", @"&ck", @"&cc", @"&ci", @"&gclid", @"&dclid", @"&dl", @"&dh", @"&dp", @"&dt", @"&cd", @"&av", @"&aid", @"&aiid"];
     }
     return self;
 }
@@ -56,22 +64,22 @@
 
 - (void)set:(NSString *)parameterName
       value:(NSString *)value {
-    [self.GATracker set:parameterName value:value];
+    [self.googleAnalyticsTracker set:parameterName value:value];
 }
 
 - (NSString *)get:(NSString *)parameterName {
-    return [self.GATracker get:parameterName];
+    return [self.googleAnalyticsTracker get:parameterName];
 }
 
 - (void)send:(NSDictionary *)parameters{
     if (self.googleAnalyticsEnabled) {
-        [self.GATracker send:parameters];
+        [self.googleAnalyticsTracker send:parameters];
     }
 
     if (self.urbanAirshipEnabled) {
         UACustomEvent *event;
         if (self.eventCreationBlock) {
-            event = self.eventCreationBlock(parameters, self.GATracker);
+            event = self.eventCreationBlock(parameters, self.googleAnalyticsTracker);
         } else {
             event = [self generateCustomEventWithParameters:parameters];
         }
@@ -90,96 +98,35 @@
 
 - (UACustomEvent *)generateCustomEventWithParameters:(NSDictionary *)parameters {
 
-    __block NSString *eventName = [parameters valueForKey:kGAIHitType];
-    __block UACustomEvent *customEvent = [UACustomEvent eventWithName:eventName];
+    NSString *eventName = [parameters valueForKey:kGAIHitType];
+    UACustomEvent *customEvent = [UACustomEvent eventWithName:eventName];
 
-    __block void (^addProperty)(NSString *, NSString *) = ^void(NSString *GAIParameter, NSString *propertyName) {
-        // Look on the tracker for the parameter first
-        if ([self.GATracker get:GAIParameter]) {
+    // Add all the parameters
+    for (NSString *key in parameters.allKeys) {
+        NSString *parameter = [parameters valueForKey:key];
 
-            NSString *parameter;
-
-            if (![self.GATracker get:GAIParameter]) {
-                parameter = [self.GATracker get:GAIParameter];
-                return;
-            }
-
-            if (![parameter isEqualToString:@"<null>"] || ![parameter isEqualToString:@"null"]) {
-                [customEvent setStringProperty:[self.GATracker get:GAIParameter] forKey:propertyName];
-            }
+        // Don't add parameter if nil or <null> string
+        if (!parameter || [parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
+            continue;
         }
-        else {
-            // Look in the parameters after checking the tracker
 
-            NSString *parameter;
+        [customEvent setStringProperty:parameters[key] forKey:key];
+    }
 
-            if (![parameters valueForKey:GAIParameter]) {
-                parameter = [parameters valueForKey:GAIParameter];
-                return;
-            }
+    // Add all tracker keys listed in the tracker keys array
+    for (NSString *trackerKey in self.trackerKeys) {
+        NSString *parameter = [self.googleAnalyticsTracker get:trackerKey];
 
-            if (![parameter isEqualToString:@"<null>"] || ![parameter isEqualToString:@"null"]) {
-                [customEvent setStringProperty:parameters[GAIParameter] forKey:propertyName];
-            }
+        // Don't add parameter if nil or <null> string
+        if (!parameter || [parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
+            continue;
         }
-    };
 
-    // Add default properties
-    addProperty(kGAIVersion, kGAIVersion);
-    addProperty(kGAITrackingId, kGAITrackingId);
-    addProperty(kGAIClientId, kGAIClientId);
-    addProperty(kGAIAppName, kGAIAppName);
-
-    // Screen View Event
-    if ([eventName isEqualToString:kGAIScreenView]) {
-        addProperty(kGAIScreenName, kGAIScreenName);
+        [customEvent setStringProperty:parameter forKey:trackerKey];
     }
 
-    // Standard GA Event
-    if ([eventName isEqualToString:kGAIEvent]) {
-        addProperty(kGAIEventCategory, kGAIEventCategory);
-        addProperty(kGAIEventAction, kGAIEventAction);
-        addProperty(kGAIEventLabel, kGAIEventLabel);
-        addProperty(kGAIEventValue, kGAIEventValue);
-    }
-
-    // Social Event
-    if ([eventName isEqualToString:kGAISocial]) {
-        addProperty(kGAISocialNetwork, kGAISocialNetwork);
-        addProperty(kGAISocialAction, kGAISocialAction);
-        addProperty(kGAISocialTarget, kGAISocialTarget);
-    }
-
-    // Transaction Event
-    if ([eventName isEqualToString:kGAITransaction]) {
-        addProperty(kGAITransactionAffiliation, kGAITransactionAffiliation);
-        addProperty(kGAITransactionId, kGAITransactionId);
-        addProperty(kGAITransactionRevenue, kGAITransactionRevenue);
-        addProperty(kGAITransactionShipping, kGAITransactionShipping);
-        addProperty(kGAITransactionTax, kGAITransactionTax);
-        addProperty(kGAICurrencyCode, kGAICurrencyCode);
-    }
-    // Item Event
-    if ([eventName isEqualToString:kGAIItem]) {
-        addProperty(kGAIItemPrice, kGAIItemPrice);
-        addProperty(kGAIItemQuantity, kGAIItemQuantity);
-        addProperty(kGAIItemSku, kGAIItemSku);
-        addProperty(kGAIItemName, kGAIItemName);
-        addProperty(kGAIItemCategory, kGAIItemCategory);
-    }
-    // Exception Event
-    if ([eventName isEqualToString:kGAIException]) {
-        addProperty(kGAIExDescription, kGAIExDescription);
-        addProperty(kGAIExFatal, kGAIExFatal);
-    }
-    // Timing Event
-    if ([eventName isEqualToString:kGAITiming]) {
-        addProperty(kGAITimingCategory, kGAITimingCategory);
-        addProperty(kGAITimingVar, kGAITimingVar);
-        addProperty(kGAITimingValue, kGAITimingValue);
-        addProperty(kGAITimingLabel, kGAITimingLabel);
-    }
     return customEvent;
 }
+
 
 @end

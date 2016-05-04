@@ -35,23 +35,4 @@
 
 @implementation UAViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-
-    // Initialize a Google Analytics tracker
-    NSObject<GAITracker> *GAtracker = [[GAI sharedInstance] trackerWithTrackingId:@"GA_tracker"];
-
-    // Initialize a Urban Airship tracker
-    UATracker *tracker = [UATracker trackerWithGATracker:GAtracker];
-
-    // Enable GA tracker (enabled by default)
-    tracker.googleAnalyticsEnabled = YES;
-
-    // Enable UA tracker (enabled by default)
-    tracker.urbanAirshipEnabled = YES;
-
-    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
-}
-
 @end
