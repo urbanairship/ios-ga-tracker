@@ -18,7 +18,7 @@
   },
   "dependencies" : {
     "GoogleAnalytics": ["~> 3.0"],
-    "UrbanAirship-iOS-SDK": ["~> 7.0.4"]
+    "UrbanAirship-iOS-SDK": ["~> 7.1.0"]
   },
   "source_files": [
       "Pod/Classes/*"

@@ -52,10 +52,11 @@ tracker.googleAnalyticsEnabled = YES;
 // Enable UA tracker (enabled by default)
 tracker.urbanAirshipEnabled = YES;
 
-// Add event customization block to add properties to the generated customEvent
-tracker.eventCustomizationBlock = ^void(UACustomEvent *customEvent, NSDictionary *parameters) {
-    [customEvent setStringProperty:@"propertyValue" forKey:@"propertyKey"];
-};
+// Add screen tracking event
+[tracker set:kGAIScreenName value:@"Home Screen"];
+
+// Send screen tracking event
+[tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 
 ```
 
