@@ -105,8 +105,18 @@
     for (NSString *key in parameters.allKeys) {
         NSString *parameter = [parameters valueForKey:key];
 
-        // Don't add parameter if nil or <null> string
-        if (!parameter || [parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
+        // Don't add parameter if nil
+        if (!parameter || parameter == [NSNull null]) {
+            continue;
+        }
+
+        // Don't add parameter if it's not a string
+        if ([parameter isKindOfClass:[NSString class]]) {
+            continue;
+        }
+
+        // Don't add parameter if it's a "<null>" or "null" string
+        if ([parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
             continue;
         }
 
@@ -117,8 +127,16 @@
     for (NSString *trackerKey in self.trackerKeys) {
         NSString *parameter = [self.googleAnalyticsTracker get:trackerKey];
 
-        // Don't add parameter if nil or <null> string
-        if (!parameter || [parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
+        // Don't add parameter if nil
+        if (!parameter || parameter == [NSNull null]) {
+            continue;
+        }
+        // Don't add parameter if it's not a string
+        if ([parameter isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        // Don't add parameter if it's a "<null>" or "null" string
+        if ([parameter isEqualToString:@"<null>"] || [parameter isEqualToString:@"null"]) {
             continue;
         }
 

@@ -1,6 +1,5 @@
 # UrbanAirship-iOS-GA-Tracker
 
-[![CI Status](http://img.shields.io/travis/David Crow/UrbanAirship-iOS-GA-Tracker.svg?style=flat)](https://travis-ci.org/David Crow/UrbanAirship-iOS-GA-Tracker)
 [![Version](https://img.shields.io/cocoapods/v/UrbanAirship-iOS-GA-Tracker.svg?style=flat)](http://cocoapods.org/pods/UrbanAirship-iOS-GA-Tracker)
 [![License](https://img.shields.io/cocoapods/l/UrbanAirship-iOS-GA-Tracker.svg?style=flat)](http://cocoapods.org/pods/UrbanAirship-iOS-GA-Tracker)
 [![Platform](https://img.shields.io/cocoapods/p/UrbanAirship-iOS-GA-Tracker.svg?style=flat)](http://cocoapods.org/pods/UrbanAirship-iOS-GA-Tracker)

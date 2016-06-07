@@ -1,0 +1,6 @@
+iOS GA Tracker Changelog
+========================
+
+Version 1.0.1 - June 7, 2016
+============================
+- Check for parameters of type NSNull
