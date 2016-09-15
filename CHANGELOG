@@ -4,3 +4,7 @@ iOS GA Tracker Changelog
 Version 1.0.1 - June 7, 2016
 ============================
 - Check for parameters of type NSNull
+
+Version 1.0.2 - Sept 15, 2016
+=============================
+- Update spec to use minimum UA SDK 8.0.0 and GA SDK 3.17
