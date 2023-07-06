@@ -1,3 +1,5 @@
+:warning: **This tracker is no longer supported**: On July 1, 2023, [Google Analytics 4 (GA4) replaced Universal Analytics](https://support.google.com/firebase/answer/9167112). For information about Airship's support for GA4 please [visit this documentation](https://docs.airship.com/integrations/google-analytics).
+
 # UrbanAirship-iOS-GA-Tracker
 
 [![Version](https://img.shields.io/cocoapods/v/UrbanAirship-iOS-GA-Tracker.svg?style=flat)](http://cocoapods.org/pods/UrbanAirship-iOS-GA-Tracker)
